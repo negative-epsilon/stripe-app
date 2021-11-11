@@ -51,40 +51,26 @@ const ProductsScreen = ({ products, navigateToCheckout }) => {
 
     const handleContinuePress = async () => {
         /* Send the cart to the server */
-        // const URL = 'https://domain.tld/api/create-payment-intent'
-        // const response = await fetch(URL, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application-json'
-        //     },
-        //     body: JSON.stringify(cart)
-        // })
+        const URL = 'https://domain.tld/api/create-payment-intent'
+        const response = await fetch(URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application-json'
+            },
+            body: JSON.stringify(cart)
+        })
 
         /* Await the response */
-        // const {
-        //     publishableKey,
-        //     stripeAccountId,
-        //     clientSecret,
-        //     merchantName
-        // } = await response.json();
-
         const {
             publishableKey,
-            stripeAccountId,
             clientSecret,
             merchantName
-        } = {
-            publishableKey: '',
-            stripeAccountId: '',
-            clientSecret: '',
-            merchantName: ''
-        }
+        } = await response.json();
 
         /* Navigate to the CheckoutScreen */
         /* You can use navigation.navigate from react-navigation */
         navigateToCheckout({
             publishableKey,
-            stripeAccountId,
             clientSecret,
             merchantName,
             cart,
@@ -173,12 +159,11 @@ const MethodSelector = ({ onPress, paymentMethod }) => {
             {/* If there's a paymentMethod selected, show it */}
             {!!paymentMethod &&
                 <Pressable
-                    onPress={choosePaymentOption}
+                    onPress={onPress}
                     style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        marginHorizontal: 24,
                         paddingVertical: 8,
                     }}>
                     {paymentMethod.label.toLowerCase().includes('apple') &&
@@ -189,13 +174,13 @@ const MethodSelector = ({ onPress, paymentMethod }) => {
                     }
                     {!paymentMethod.label.toLowerCase().includes('google') &&
                         !paymentMethod.label.toLowerCase().includes('apple') &&
-                        <View style={[styles.selectButton, { marginLeft: 16 }]}>
+                        <View style={[styles.selectButton, { marginRight: 16 }]}>
                             <Text style={[styles.boldText, { color: '#007DFF' }]}>
                                 {paymentMethod.label}
                             </Text>
                         </View>
                     }
-                    <Text style={[styles.boldText, { color: '#007DFF' }]}>
+                    <Text style={[styles.boldText, { color: '#007DFF', flex: 1 }]}>
                         Change payment method
                     </Text>
                 </Pressable>
@@ -208,7 +193,6 @@ const CheckoutScreen = ({
     products,
     navigateBack,
     publishableKey,
-    stripeAccountId,
     clientSecret,
     merchantName,
     cart }) => {
@@ -229,7 +213,6 @@ const CheckoutScreen = ({
         (async () => {
             await initStripe({
                 publishableKey,
-                stripeAccountId,
                 // Only if implementing applePay
                 // Set the merchantIdentifier to the same
                 // value in the StripeProvider and
@@ -240,7 +223,7 @@ const CheckoutScreen = ({
             // Initialize the PaymentSheet with the paymentIntent data,
             // we will later present and confirm this
             await initializePaymentSheet();
-        })
+        })();
     }, []);
 
     const initializePaymentSheet = async () => {
